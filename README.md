@@ -1,7 +1,21 @@
-# Ars Nouveau Crafting Terminal
+## 📦 Ars Nouveau: Crafting Terminal Improvements
 
-This is simple mod that fixes Ars Nouveau Crafting Terminal:
-- expanded gui slots were not working on opening gui
+A lightweight addon for [Ars Nouveau](https://www.curseforge.com/minecraft/mc-mods/ars-nouveau) that enhances the **Crafting Terminal** experience with QOL upgrades and bug fixes.
 
-It also adds new feature:
-- allows to choose between small (3 rows), medium (6 rows) or large (9 rows) GUI.
+***
+
+### ✨ Features:
+
+**Fixed Scrolling Glitch:**  
+Resolves the annoying issue where the expanded crafting terminal would glitch or misalign when scrolling through recipes or inventory items.
+
+**Configurable GUI Sizes:**  
+Choose your preferred crafting grid layout:
+
+*   🟩 **Small** – 3 rows
+*   🟦 **Medium** – 6 rows
+*   🟥 **Large** – 9 rows
+
+Each size provides smoother usability and better integration with different screen resolutions.
+
+Required on both: server and client

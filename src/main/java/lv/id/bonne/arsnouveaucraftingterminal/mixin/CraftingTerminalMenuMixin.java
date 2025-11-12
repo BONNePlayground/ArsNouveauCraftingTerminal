@@ -21,8 +21,9 @@ import java.util.List;
 import lv.id.bonne.arsnouveaucraftingterminal.client.container.GuiSettings;
 import lv.id.bonne.arsnouveaucraftingterminal.injectors.CraftingTerminalInjector;
 import lv.id.bonne.arsnouveaucraftingterminal.injectors.StorageLecternTileInjector;
+import lv.id.bonne.arsnouveaucraftingterminal.network.ClientNetworking;
 import lv.id.bonne.arsnouveaucraftingterminal.network.Networking;
-import lv.id.bonne.arsnouveaucraftingterminal.network.SetGuiSettingsPacket;
+import lv.id.bonne.arsnouveaucraftingterminal.network.packets.ServerGuiSettingsPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
@@ -66,7 +67,7 @@ public abstract class CraftingTerminalMenuMixin extends StorageTerminalMenu
         {
             GuiSettings guiSettings = ((StorageLecternTileInjector) this.te).getGuiSettings();
 
-            Networking.sendToPlayerClient(new SetGuiSettingsPacket(guiSettings), (ServerPlayer) pinv.player);
+            Networking.sendToPlayerClient(new ServerGuiSettingsPacket(guiSettings), (ServerPlayer) pinv.player);
             this.anct$sentSettings = true;
             this.anct$guiSize = guiSettings.guiSize();
         }
@@ -89,7 +90,10 @@ public abstract class CraftingTerminalMenuMixin extends StorageTerminalMenu
     @Overwrite
     public void addStorageSlots(boolean expanded)
     {
-        int lines = 13;
+        boolean serverHandling = this.pinv.player instanceof ServerPlayer ||
+            ClientNetworking.hasServerSide();
+
+        int lines = !serverHandling ? 7 : 13;
         boolean shouldAdd = this.storageSlotList.isEmpty();
 
         int maxRows = (this.anct$guiSize + 1) * 3 + (expanded ? 4 : 0);

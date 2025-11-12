@@ -13,7 +13,6 @@ import com.hollingsworth.arsnouveau.client.container.CraftingTerminalScreen;
 import com.hollingsworth.arsnouveau.client.container.IAutoFillTerminal;
 import com.hollingsworth.arsnouveau.client.gui.buttons.StateButton;
 import com.hollingsworth.arsnouveau.client.gui.buttons.StorageSettingsButton;
-import org.checkerframework.checker.units.qual.A;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,8 +26,8 @@ import java.util.ArrayList;
 import lv.id.bonne.arsnouveaucraftingterminal.ArsNouveauCraftingTerminal;
 import lv.id.bonne.arsnouveaucraftingterminal.client.container.GuiSettings;
 import lv.id.bonne.arsnouveaucraftingterminal.injectors.CraftingTerminalInjector;
-import lv.id.bonne.arsnouveaucraftingterminal.network.Networking;
-import lv.id.bonne.arsnouveaucraftingterminal.network.SetGuiSettingsPacket;
+import lv.id.bonne.arsnouveaucraftingterminal.network.packets.ClientGuiSettingsPacket;
+import lv.id.bonne.arsnouveaucraftingterminal.network.ClientNetworking;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.network.chat.Component;
@@ -57,9 +56,11 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
         shift = At.Shift.AFTER))
     private void injectGUISizeButtonInitialize(CallbackInfo ci)
     {
+        if (!ClientNetworking.hasServerSide()) return;
+
         this.anct$buttonGuiSize = this.addRenderableWidget(new StorageSettingsButton(this.leftPos - 17, this.topPos + 59, 22, 12, 66, 13, 0, ArsNouveauCraftingTerminal.prefix("textures/gui/gui_size.png"), b -> {
             if (++this.anct$guiSize >= 3) this.anct$guiSize = 0;
-            Networking.sendToServer(new SetGuiSettingsPacket(new GuiSettings(this.anct$guiSize)));
+            ClientNetworking.sendToServer(new ClientGuiSettingsPacket(new GuiSettings(this.anct$guiSize)));
             this.anct$reinitializeGUI();
         }));
 
@@ -76,6 +77,8 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
         float partialTicks,
         CallbackInfo ci)
     {
+        if (!ClientNetworking.hasServerSide()) return;
+
         if (this.anct$buttonGuiSize.isHovered())
         {
             graphics.renderTooltip(this.font,
@@ -89,6 +92,8 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
     @Inject(method = "lambda$init$3", at = @At("TAIL"))
     private void injectGUISizeButtonOffset(int recipeButtonY, Button thisButton, CallbackInfo ci)
     {
+        if (!ClientNetworking.hasServerSide()) return;
+
         this.anct$buttonGuiSize.setX(this.leftPos - 18);
     }
 
@@ -98,6 +103,8 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
         ordinal = 2))
     private void injectGUISizeButtonOffset(CallbackInfo ci)
     {
+        if (!ClientNetworking.hasServerSide()) return;
+
         this.anct$buttonGuiSize.setX(this.leftPos - 18);
     }
 

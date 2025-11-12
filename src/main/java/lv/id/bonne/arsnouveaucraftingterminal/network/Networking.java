@@ -1,49 +1,51 @@
 package lv.id.bonne.arsnouveaucraftingterminal.network;
 
 
-import com.hollingsworth.arsnouveau.common.network.AbstractPacket;
-
-import net.minecraft.client.Minecraft;
-import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
+import lv.id.bonne.arsnouveaucraftingterminal.ArsNouveauCraftingTerminal;
+import lv.id.bonne.arsnouveaucraftingterminal.network.packets.ClientGuiSettingsPacket;
+import lv.id.bonne.arsnouveaucraftingterminal.network.packets.HandShakePacket;
+import lv.id.bonne.arsnouveaucraftingterminal.network.packets.ServerGuiSettingsPacket;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent;
 import net.neoforged.neoforge.network.PacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
-import net.neoforged.neoforge.network.handling.DirectionalPayloadHandler;
-import net.neoforged.neoforge.network.handling.IPayloadContext;
 import net.neoforged.neoforge.network.registration.PayloadRegistrar;
 
-
+@EventBusSubscriber(modid = ArsNouveauCraftingTerminal.MODID)
 public class Networking
 {
-    public static void register(final RegisterPayloadHandlersEvent event)
+    @SubscribeEvent
+    public static void onPlayerJoin(PlayerEvent.PlayerLoggedInEvent event)
     {
-        // Sets the current network version
-        final PayloadRegistrar reg = event.registrar("1");
-        reg.playBidirectional(SetGuiSettingsPacket.TYPE,
-            SetGuiSettingsPacket.CODEC,
-            new DirectionalPayloadHandler<>(ClientMessageHandler::handleClient,
-                (msg, ctx) -> msg.onServerReceived(ctx.player().getServer(), (ServerPlayer) ctx.player())));
-    }
-
-
-    private static class ClientMessageHandler
-    {
-        public static <T extends AbstractPacket> void handleClient(T message, IPayloadContext ctx)
+        if (event.getEntity() instanceof ServerPlayer player &&
+            player.connection.hasChannel(HandShakePacket.TYPE))
         {
-            Minecraft minecraft = Minecraft.getInstance();
-            message.onClientReceived(minecraft, minecraft.player);
+            // Send to client that mod is enabld on server
+            PacketDistributor.sendToPlayer(player, new HandShakePacket());
         }
     }
 
 
-    public static void sendToPlayerClient(CustomPacketPayload msg, ServerPlayer player)
+    public static void register(final RegisterPayloadHandlersEvent event)
     {
-        PacketDistributor.sendToPlayer(player, msg);
+        final PayloadRegistrar reg = event.registrar("2").optional();
+
+        // Register client-to-server packet
+        reg.playToServer(ClientGuiSettingsPacket.TYPE,
+            ClientGuiSettingsPacket.CODEC,
+            (msg, ctx) -> msg.handle(ctx.player().getServer(), (ServerPlayer) ctx.player()));
+
+        reg.playToClient(HandShakePacket.TYPE, HandShakePacket.STREAM_CODEC, HandShakePacket::handle);
     }
 
 
-    public static void sendToServer(CustomPacketPayload msg)
+    public static void sendToPlayerClient(ServerGuiSettingsPacket msg, ServerPlayer player)
     {
-        PacketDistributor.sendToServer(msg);
+        if (player.connection.hasChannel(msg.type()))
+        {
+            PacketDistributor.sendToPlayer(player, msg);
+        }
     }
 }

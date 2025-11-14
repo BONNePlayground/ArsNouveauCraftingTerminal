@@ -35,9 +35,15 @@ public class Networking
         // Register client-to-server packet
         reg.playToServer(ClientGuiSettingsPacket.TYPE,
             ClientGuiSettingsPacket.CODEC,
-            (msg, ctx) -> msg.handle(ctx.player().getServer(), (ServerPlayer) ctx.player()));
+            ClientGuiSettingsPacket::handle);
 
-        reg.playToClient(HandShakePacket.TYPE, HandShakePacket.STREAM_CODEC, HandShakePacket::handle);
+        reg.playToClient(HandShakePacket.TYPE,
+            HandShakePacket.STREAM_CODEC,
+            HandShakePacket::handle);
+
+        reg.playToClient(ServerGuiSettingsPacket.TYPE,
+            ServerGuiSettingsPacket.CODEC,
+            ServerGuiSettingsPacket::handle);
     }
 
 

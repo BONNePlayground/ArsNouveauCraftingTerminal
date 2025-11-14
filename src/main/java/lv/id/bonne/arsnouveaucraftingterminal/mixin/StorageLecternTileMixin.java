@@ -7,6 +7,7 @@
 package lv.id.bonne.arsnouveaucraftingterminal.mixin;
 
 
+import com.hollingsworth.arsnouveau.common.block.tile.ModdedTile;
 import com.hollingsworth.arsnouveau.common.block.tile.StorageLecternTile;
 import com.hollingsworth.arsnouveau.common.util.ANCodecs;
 import org.spongepowered.asm.mixin.Implements;
@@ -19,8 +20,11 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import lv.id.bonne.arsnouveaucraftingterminal.client.container.GuiSettings;
 import lv.id.bonne.arsnouveaucraftingterminal.injectors.StorageLecternTileInjector;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockState;
 
 
 /**
@@ -28,8 +32,16 @@ import net.minecraft.nbt.CompoundTag;
  */
 @Mixin(value = StorageLecternTile.class, remap = false)
 @Implements(@Interface(iface = StorageLecternTileInjector.class, prefix = "injector$", unique = true))
-public class StorageLecternTileMixin
+public abstract class StorageLecternTileMixin extends ModdedTile
 {
+    public StorageLecternTileMixin(BlockEntityType<?> tileEntityTypeIn,
+        BlockPos pos,
+        BlockState state)
+    {
+        super(tileEntityTypeIn, pos, state);
+    }
+
+
     @Unique
     public GuiSettings anct$guiSettings = new GuiSettings();
 
@@ -37,6 +49,7 @@ public class StorageLecternTileMixin
     public void injector$setGuiSettings(GuiSettings settings)
     {
         this.anct$guiSettings = settings;
+        this.updateBlock();
     }
 
 

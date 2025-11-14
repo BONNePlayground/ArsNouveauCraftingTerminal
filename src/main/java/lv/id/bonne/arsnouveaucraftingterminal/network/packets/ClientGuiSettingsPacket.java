@@ -12,6 +12,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
+import net.neoforged.neoforge.network.handling.IPayloadContext;
 
 
 /**
@@ -41,11 +42,23 @@ public record ClientGuiSettingsPacket(GuiSettings settings) implements CustomPac
     }
 
 
-    public void handle(MinecraftServer minecraftServer, ServerPlayer player)
+    private void handle(MinecraftServer minecraftServer, ServerPlayer player)
     {
         if (player.containerMenu instanceof CraftingTerminalInjector terminalScreen)
         {
             terminalScreen.receiveSettings(settings);
+        }
+    }
+
+
+    public static void handle(ClientGuiSettingsPacket msg, IPayloadContext context)
+    {
+        if (context.flow().isServerbound())
+        {
+            context.enqueueWork(() ->
+            {
+                msg.handle(context.player().getServer(), (ServerPlayer) context.player());
+            });
         }
     }
 }

@@ -21,7 +21,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
+import java.util.stream.IntStream;
 
 import lv.id.bonne.arsnouveaucraftingterminal.ArsNouveauCraftingTerminal;
 import lv.id.bonne.arsnouveaucraftingterminal.client.container.GuiSettings;
@@ -61,7 +61,7 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
         this.anct$buttonGuiSize = this.addRenderableWidget(new StorageSettingsButton(this.leftPos - 17, this.topPos + 59, 22, 12, 66, 13, 0, ArsNouveauCraftingTerminal.prefix("textures/gui/gui_size.png"), b -> {
             if (++this.anct$guiSize >= 3) this.anct$guiSize = 0;
             ClientNetworking.sendToServer(new ClientGuiSettingsPacket(new GuiSettings(this.anct$guiSize)));
-            this.anct$reinitializeGUI();
+            this.rebuildWidgets();
         }));
 
         this.anct$buttonGuiSize.state = this.anct$guiSize;
@@ -243,7 +243,7 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
     public void injector$receiveSettings(GuiSettings settings)
     {
         this.anct$guiSize = settings.guiSize();
-        this.anct$reinitializeGUI();
+        this.rebuildWidgets();
         this.anct$buttonGuiSize.state = this.anct$guiSize;
     }
 
@@ -259,11 +259,17 @@ public abstract class CraftingTerminalScreenMixin extends AbstractStorageTermina
 // ---------------------------------------------------------------------
 
 
-    @Unique
-    private void anct$reinitializeGUI()
+    @Override
+    protected void rebuildWidgets()
     {
-        new ArrayList<>(this.children()).forEach(this::removeWidget);
-        this.init();
+        int selectedTab = IntStream.range(0, this.tabButtons.size()).
+            filter(i -> this.tabButtons.get(i).isSelected).
+            findFirst().
+            orElse(0);
+        this.tabButtons.clear();
+        super.rebuildWidgets();
+        this.receiveSettings(this.getSortSettings());
+        this.setSelectedTab(selectedTab);
     }
 
 

@@ -6,8 +6,10 @@ A lightweight addon for [Ars Nouveau](https://www.curseforge.com/minecraft/mc-mo
 
 ### ✨ Features:
 
-**Fixed Scrolling Glitch:**  
-Resolves the annoying issue where the expanded crafting terminal would glitch or misalign when scrolling through recipes or inventory items.
+**Fixed GUI Glitches:**  
+- Resolves the annoying issue where the expanded crafting terminal would glitch or misalign when scrolling through recipes or inventory items.
+- Resolves the issue when changing screen size dropped filter options.
+- Resolves the issue when changing screen size removed all tabs.
 
 **Configurable GUI Sizes:**  
 Choose your preferred crafting grid layout:
@@ -18,4 +20,4 @@ Choose your preferred crafting grid layout:
 
 Each size provides smoother usability and better integration with different screen resolutions.
 
-Required on both: server and client
+To operate the mod is required on both sides: client and server. However, mod is not required to join the server, and clients with mod can join servers without it.

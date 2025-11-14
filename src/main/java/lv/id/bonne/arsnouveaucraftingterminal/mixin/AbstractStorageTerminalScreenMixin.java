@@ -12,8 +12,11 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import lv.id.bonne.arsnouveaucraftingterminal.network.ClientNetworking;
 
 
 @Mixin(value = AbstractStorageTerminalScreen.class, remap = false)
@@ -46,5 +49,16 @@ public abstract class AbstractStorageTerminalScreenMixin
     private int fixRowCount(int value)
     {
         return this.rowCount;
+    }
+
+
+    @ModifyArg(method = "init", at = @At(value = "INVOKE",
+        target = "Lcom/hollingsworth/arsnouveau/client/gui/buttons/StorageTabButton;<init>(IIIIIIIILnet/minecraft/resources/ResourceLocation;Lnet/minecraft/client/gui/components/Button$OnPress;)V"),
+        index = 1)
+    private int adjustOffsetOfTabs(int x)
+    {
+        if (!ClientNetworking.hasServerSide()) return x;
+
+        return x + 15;
     }
 }
